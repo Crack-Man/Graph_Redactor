@@ -1,0 +1,10 @@
+2.add something in git
+git status
+git add -A
+git status
+git commit -m ""
+git push
+
+
+1.check changes
+git pull

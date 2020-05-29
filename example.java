@@ -20,7 +20,7 @@ frame.setVisible(true);
 
 class ShapeTestFrame extends JFrame {
 public ShapeTestFrame() {
-setTitle("Shape Test");
+setTitle("Shape");
 
 Container contentPane = getContentPane();
 
