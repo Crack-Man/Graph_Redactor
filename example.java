@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 import java.awt.geom.*;
@@ -24,7 +25,7 @@ class ShapeTestFrame extends JFrame {
 
       Container contentPane = getContentPane();
 
-      final ShapePanel panel = new ShapePanel();
+      final ShapePanel panel = new ShapePanel(600, 800);
       contentPane.add(panel, BorderLayout.CENTER);
       final JComboBox comboBox = new JComboBox();
       comboBox.addItem(new LineMaker());
@@ -61,6 +62,18 @@ class ShapePanel extends JPanel {
    private int current;
    private ShapeMaker shapeMaker;
    private Shape shape;
+   int width = 0;
+   int height = 0;
+   BufferedImage buf = null;
+   Graphics buffer = null;
+
+   public ShapePanel(int width, int height) {
+      this();
+      this.width = width;
+      this.height = height;
+      buf = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+      buffer = buf.getGraphics();
+   }
 
    public ShapePanel() {
 
@@ -90,13 +103,15 @@ class ShapePanel extends JPanel {
                return;
             points[current] = event.getPoint();
             shape = shapeMaker.makeShape(points);
+            paintToBuffer();
             repaint();
          }
       });
       current = -1;
 
       JPanel bottomPanel = new JPanel();
-      bottomPanel.add(new JButton(new SaveShapeAction("Save Shape")));
+      JButton but = new JButton(new SaveShapeAction("Save Shape"));
+      bottomPanel.add(but);
       setLayout(new BorderLayout());
       add(bottomPanel, BorderLayout.PAGE_END);
    }
@@ -106,11 +121,12 @@ class ShapePanel extends JPanel {
       int n = shapeMaker.getPointCount();
       points = new Point2D[n];
       for (int i = 0; i < n; i++) {
-         double x = generator.nextDouble() * getWidth();
-         double y = generator.nextDouble() * getHeight();
+         double x = generator.nextDouble() * getWidth()/2;
+         double y = generator.nextDouble() * getHeight()/2;
          points[i] = new Point2D.Double(x, y);
       }
       shape = shapeMaker.makeShape(points);
+      paintToBuffer();
       repaint();
    }
 
@@ -118,11 +134,11 @@ class ShapePanel extends JPanel {
       return new Dimension(WD, HT);
    }
 
-   public void paintComponent(Graphics g) {
-      super.paintComponent(g);
+   public void paintToBuffer() {
+      super.paintComponent(buffer);
       if (points == null)
          return;
-      Graphics2D g2 = (Graphics2D) g;
+      Graphics2D g2 = (Graphics2D) buffer;
       g2.setColor(SHAPES_COLOR);
       for (Shape shape : shapes) {
          g2.draw(shape);
@@ -139,6 +155,10 @@ class ShapePanel extends JPanel {
       }
    }
 
+   public void paintComponent(Graphics g) {
+      g.drawImage(buf, 0, 0, this);
+   }
+
    private class SaveShapeAction extends AbstractAction {
       public SaveShapeAction(String name) {
          super(name);
@@ -148,10 +168,10 @@ class ShapePanel extends JPanel {
       @Override
       public void actionPerformed(ActionEvent e) {
          shapes.add(shape);
+         paintToBuffer();
          repaint();
       }
    }
-
 }
 
 abstract class ShapeMaker {
@@ -242,7 +262,7 @@ class QuadCurveMaker extends ShapeMaker {
 
    public Shape makeShape(Point2D[] p) {
       return new QuadCurve2D.Double(p[0].getX(), p[0].getY(), p[1].getX(),
-            p[1].getY(), p[2].getX(), p[2].getY());
+              p[1].getY(), p[2].getX(), p[2].getY());
    }
 }
 
@@ -253,6 +273,6 @@ class CubicCurveMaker extends ShapeMaker {
 
    public Shape makeShape(Point2D[] p) {
       return new CubicCurve2D.Double(p[0].getX(), p[0].getY(), p[1].getX(),
-            p[1].getY(), p[2].getX(), p[2].getY(), p[3].getX(), p[3].getY());
+              p[1].getY(), p[2].getX(), p[2].getY(), p[3].getX(), p[3].getY());
    }
 }
