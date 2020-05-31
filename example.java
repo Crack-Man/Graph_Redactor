@@ -98,21 +98,6 @@ class ShapePanel extends JPanel {
     }
 
     public ShapePanel() {
-        addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyTyped(KeyEvent e) {
-                super.keyTyped(e);
-            }
-            @Override
-            public void keyPressed(KeyEvent e) {
-                System.out.println("s");
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e) {
-            }
-        });
-
         addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent event) {
                 Point p = event.getPoint();
