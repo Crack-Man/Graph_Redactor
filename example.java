@@ -36,7 +36,6 @@ class ShapeTestFrame extends JFrame {
         comboBox.addItem(new PolygonMaker());
         comboBox.addItem(new QuadCurveMaker());
         comboBox.addItem(new CubicCurveMaker());
-
         final JButton clRed = new JButton();
         clRed.setPreferredSize(new Dimension(25,25));
         clRed.setBackground(Color.RED);
@@ -56,6 +55,8 @@ class ShapeTestFrame extends JFrame {
             }
         });
 //        contentPane.add(param, BorderLayout.WEST);
+        ShapeMaker shapeMaker = (ShapeMaker) comboBox.getSelectedItem();
+        panel.setShapeMaker(shapeMaker);
         contentPane.add(panel, BorderLayout.CENTER);
         contentPane.add(comboBox, BorderLayout.NORTH);
         pack();
@@ -76,6 +77,9 @@ class Parameters extends JPanel {
 
 class ShapePanel extends JPanel {
     private static final Color SHAPES_COLOR = Color.RED;
+    private static final Color[] colors = {Color.black, Color.blue, Color.red,
+            Color.green, Color.orange, Color.MAGENTA};
+    public static int indexcolor = 0;
     private static final Color SHAPE_COLOR = Color.black;
     private List<Shape> shapes = new ArrayList<>();
     private Point2D[] points;
@@ -142,8 +146,8 @@ class ShapePanel extends JPanel {
         int n = shapeMaker.getPointCount();
         points = new Point2D[n];
         for (int i = 0; i < n; i++) {
-            double x = generator.nextDouble() * getWidth()/2;
-            double y = generator.nextDouble() * getHeight()/2;
+            double x = generator.nextDouble() * getWidth() / 2;
+            double y = generator.nextDouble() * getHeight() / 2;
             points[i] = new Point2D.Double(x, y);
         }
         shape = shapeMaker.makeShape(points);
@@ -160,11 +164,16 @@ class ShapePanel extends JPanel {
         if (points == null)
             return;
         Graphics2D g2 = (Graphics2D) buffer;
-        g2.setColor(SHAPES_COLOR);
+        //g2.setColor(SHAPES_COLOR);
+        g2.setColor(colors[0]);
         for (Shape shape : shapes) {
+            indexcolor++;
+            indexcolor %= colors.length;
+            g2.setColor(colors[indexcolor]);
             g2.draw(shape);
         }
-        g2.setColor(SHAPE_COLOR);
+
+        //g2.setColor(SHAPE_COLOR);
         for (int i = 0; i < points.length; i++) {
             double x = points[i].getX() - SIZE / 2;
             double y = points[i].getY() - SIZE / 2;
@@ -205,7 +214,6 @@ abstract class ShapeMaker {
     public int getPointCount() {
         return pointCount;
     }
-
     public abstract Shape makeShape(Point2D[] p);
 
     public String toString() {
@@ -215,6 +223,7 @@ abstract class ShapeMaker {
 }
 
 class LineMaker extends ShapeMaker {
+    Color shapeColor;
     public LineMaker() {
         super(2);
     }
@@ -225,6 +234,7 @@ class LineMaker extends ShapeMaker {
 }
 
 class RectangleMaker extends ShapeMaker {
+    Color shapeColor;
     public RectangleMaker() {
         super(2);
     }
@@ -237,6 +247,7 @@ class RectangleMaker extends ShapeMaker {
 }
 
 class RoundRectangleMaker extends ShapeMaker {
+    Color shapeColor;
     public RoundRectangleMaker() {
         super(2);
     }
@@ -249,6 +260,8 @@ class RoundRectangleMaker extends ShapeMaker {
 }
 
 class EllipseMaker extends ShapeMaker {
+    Color shapeColor;
+
     public EllipseMaker() {
         super(2);
     }
@@ -261,6 +274,8 @@ class EllipseMaker extends ShapeMaker {
 }
 
 class PolygonMaker extends ShapeMaker {
+    Color shapeColor;
+
     public PolygonMaker() {
         super(6);
     }
@@ -274,9 +289,12 @@ class PolygonMaker extends ShapeMaker {
         s.closePath();
         return s;
     }
+
 }
 
 class QuadCurveMaker extends ShapeMaker {
+    Color shapeColor;
+
     public QuadCurveMaker() {
         super(3);
     }
@@ -285,9 +303,12 @@ class QuadCurveMaker extends ShapeMaker {
         return new QuadCurve2D.Double(p[0].getX(), p[0].getY(), p[1].getX(),
                 p[1].getY(), p[2].getX(), p[2].getY());
     }
+
 }
 
 class CubicCurveMaker extends ShapeMaker {
+    Color shapecColor;
+
     public CubicCurveMaker() {
         super(4);
     }
@@ -296,4 +317,5 @@ class CubicCurveMaker extends ShapeMaker {
         return new CubicCurve2D.Double(p[0].getX(), p[0].getY(), p[1].getX(),
                 p[1].getY(), p[2].getX(), p[2].getY(), p[3].getX(), p[3].getY());
     }
+
 }
